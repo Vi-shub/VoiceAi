@@ -9,6 +9,8 @@ from sklearn.mixture import GaussianMixture
 import pickle
 import json
 from vosk import Model,KaldiRecognizer
+import speech_recognition as sr
+from graphviz import Digraph
 
 
 def record_audio_train():
@@ -96,7 +98,7 @@ def record_and_predict_speaker(j):
         RECORD_SECONDS = 10
         device_index = 2
         audio = pyaudio.PyAudio()
-        index = 4
+        index = 1
         stream = audio.open(format=FORMAT, channels=CHANNELS,
                             rate=RATE, input=True,input_device_index = index,
                             frames_per_buffer=CHUNK)
@@ -161,7 +163,47 @@ def create_transcript(speakers):
                     english = dict.get("text","")
                     with open(file_path,action,encoding='utf-8') as file:
                         file.write(english + ' ')
+
+
               
+def listen_for_step():
+    recognizer = sr.Recognizer()
+
+    with sr.Microphone() as source:
+        print("Listening for the next step...")
+
+        try:
+            recognizer.adjust_for_ambient_noise(source)
+            audio = recognizer.listen(source, timeout=10)
+
+            print("Recognizing...")
+            step_text = recognizer.recognize_google(audio)
+            print(f"Step: {step_text}")
+
+            return step_text
+
+        except sr.UnknownValueError:
+            print("Could not understand audio. Please repeat.")
+            return listen_for_step()
+        except sr.RequestError as e:
+            print(f"Could not request results from Google Speech Recognition service; {e}")
+            return listen_for_step()
+        
+def generate_flowchart(steps):
+    dot = Digraph(comment="Flowchart")
+
+    for index, step_text in enumerate(steps, start=1):
+        dot.node(f"step_{index}", step_text)
+
+    for i in range(1, len(steps)):
+        dot.edge(f"step_{i}", f"step_{i+1}", label=f"Step {i}")
+
+    dot.render(f"{steps[0]}", format="png", cleanup=True)
+
+    print("Flowchart saved as flowchart.png")
+
+
+
 
 
          
