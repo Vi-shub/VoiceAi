@@ -1,4 +1,5 @@
 # VoiceAi
+### Download vosk-en-in-0.5 from - https://alphacephei.com/vosk/models/vosk-model-en-in-0.5.zip and put it in the folder
 - Running Instrutcions
   - 1. Run the following in the console:
        ```
