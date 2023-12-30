@@ -49,7 +49,7 @@ def record_audio_train():
         WAVE_OUTPUT_FILENAME = os.path.join(f"traning_data_{name}",OUTPUT_FILENAME)
         trainedfilelist = open(f"trainedfilelist{name}.txt","a")
         trainedfilelist.write(OUTPUT_FILENAME+"\n")
-        wavefile = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+        wavefile = wave.open(f"traning_data_{name}/{OUTPUT_FILENAME}", 'wb')
         wavefile.setnchannels(CHANNELS)
         wavefile.setsampwidth(audio.get_sample_size(FORMAT))
         wavefile.setframerate(RATE)

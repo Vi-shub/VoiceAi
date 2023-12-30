@@ -38,7 +38,7 @@ def main():
         os.makedirs("Meet_Files")
     with open("input.txt","w") as f:
         f.write("0")
-    # pre_meeting()
+    pre_meeting()
     while_meeting()
     post_meeting()
 
