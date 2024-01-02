@@ -11,6 +11,7 @@ import json
 from vosk import Model,KaldiRecognizer
 import speech_recognition as sr
 from graphviz import Digraph
+from easygoogletranslate import EasyGoogleTranslate
 
 
 def record_audio_train():
@@ -136,36 +137,28 @@ def create_transcript(speakers):
     flag = 0
 
     for files in os.listdir("Meet_files"):
-         inFile = wave.open(f"Meet_Files/chunk{i}.wav", "rb")
-
-         soundBytes = inFile.readframes(inFile.getnframes())
-         print("frames read: {} length: {}".format(inFile.getnframes(),len(soundBytes)))
          wf = wave.open(f"Meet_Files/chunk{i}.wav", "rb")
          recognizer = KaldiRecognizer(model, wf.getframerate())
          recognizer.SetWords(True)
-         file_path = "Transcript.txt"
-         with open(file_path,'a',encoding='utf-8') as file:
-              file.write("\n Speaker " + str(speakers[i-1]) + ": ")
-              file.close()
-              i += 1
-
+         textresults = []
+         results = ""
          while True:
-                action = 'a'
-                data = wf.readframes(10240)
-                if(len(data) == 0):
-                    break
-                if recognizer.AcceptWaveform(data):
-                    if(flag == 0):
-                        action = 'w'
-                        flag=1
-                    text = recognizer.Result()
-                    dict = json.loads(text) 
-                    english = dict.get("text","")
-                    with open(file_path,action,encoding='utf-8') as file:
-                        file.write(english + ' ')
-
-
-              
+              data = wf.readframes(4000)
+              if len(data) == 0:
+                  break
+              if recognizer.AcceptWaveform(data):
+                   recognizerResult = recognizer.Result()
+                   results = results + recognizerResult
+                   resultDict = json.loads(recognizerResult)
+                   textresults.append(resultDict.get("text", ""))
+         ressultDict = json.loads(recognizer.FinalResult())
+         textresults.append(ressultDict.get("text", ""))
+         with open("Transcript.txt","a") as out:
+              out.write(f"{speakers[i-1][11:]}: ")
+              for result in textresults:
+                   out.write(result)
+              out.write("\n")
+         i+=1         
 def listen_for_step():
     recognizer = sr.Recognizer()
 
@@ -201,6 +194,31 @@ def generate_flowchart(steps):
     dot.render(f"{steps[0]}", format="png", cleanup=True)
 
     print("Flowchart saved as flowchart.png")
+
+
+def translate(text,lang):
+    chunks = [text[i:i+5000] for i in range(0, len(text), 5000)]
+    translator = EasyGoogleTranslate(
+          source_language = "en",
+          target_language = lang
+    )
+    translated_text = ""
+    for chunk in chunks:
+          translated_text += translator.translate(chunk)
+    return translated_text
+
+def translateFile():
+    langs = ["hi","mr","ta","te","kn"]
+    for lang in langs:
+        with open("Transcript.txt","r") as file:
+            text = file.read()
+        with open(f"Transcript_{lang}.txt","w") as file:
+            file.write(translate(text,lang))
+        print(f"Translated to {lang}")
+
+
+         
+
 
 
 
