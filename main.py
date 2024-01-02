@@ -29,6 +29,7 @@ def while_meeting(i=1):
 
 def post_meeting():
     create_transcript(speakers)
+    translateFile()
 
 
 
