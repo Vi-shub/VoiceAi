@@ -1,0 +1,18 @@
+/* Navbar.module.css */
+
+.fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; /* Adjust the z-index as needed */
+    padding: 0 65px;
+    backdrop-filter: blur(4px); /* Add background blur */
+    background-color: rgba(0, 0, 0, 0.1); /* Set a semi-transparent white background */
+    transition: backdrop-filter 0.3s ease, background-color 0.3s ease; /* Add smooth transition */
+  }
+  
+  .bg-black {
+    background-color: black;
+  }
+  
