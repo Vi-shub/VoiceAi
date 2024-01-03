@@ -209,11 +209,17 @@ def translate(text,lang):
 
 def translateFile():
     langs = ["hi","mr","ta","te","kn"]
+    print(1)
     for lang in langs:
+        print(2)
         with open("Transcript.txt","r") as file:
+            print(3)
             text = file.read()
-        with open(f"Transcript_{lang}.txt","w") as file:
+            print(4)
+        with open(f"Transcript_{lang}.txt","w",encoding='utf8') as file:
+            print(5)
             file.write(translate(text,lang))
+            print(6)
         print(f"Translated to {lang}")
 
 
