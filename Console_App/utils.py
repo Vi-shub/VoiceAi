@@ -12,11 +12,26 @@ from vosk import Model,KaldiRecognizer
 import speech_recognition as sr
 from graphviz import Digraph
 from easygoogletranslate import EasyGoogleTranslate
+import pyttsx3
+sample_paragraphs = {
+    1: "The average human heart beats about 100,000 times a day.And is the most important organ in the body.",
+    
+    2: "A single day on Venus is longer than a year on Earth, lasting about 243 Earth days. Venus is the second brightest natural object in the sky.",
+    
+    3: "The Eiffel Tower in Paris is made up of over 18,000 individual iron parts. The Eiffel Tower was named after the engineer Gustave Eiffel.",
+    
+    4: "The Pacific Ocean is the largest and deepest ocean on Earth, covering more than 63 million square miles. The Pacific Ocean has an average depth of 2.4 miles.",
+    
+    5: "Bananas are berries, but strawberries are not. In botanical terms, berries are defined by certain criteria, and bananas fit the bill"
+}
 
 
 def record_audio_train():
-    name = input("Enter your name: ")
+    speak("Please enter your name...")
+    name = input("Please enter your name: ")
+    print("Your name is "+name)
     os.mkdir(f"traning_data_{name}")
+    speak("Recording your voice samples...Please speak the following sentences written on the screen")
     for count in range(5):
         FORMAT = pyaudio.paInt16
         CHANNELS = 1
@@ -25,18 +40,11 @@ def record_audio_train():
         RECORD_SECONDS = 10
         device_index = 2
         audio = pyaudio.PyAudio()
-        print("-------------------recording device list -------------------")
-        info = audio.get_host_api_info_by_index(0)
-        numdevices = info.get('deviceCount')
-        for i in range(0, numdevices):
-            if (audio.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
-                print("Input Device id ", i, " - ", audio.get_device_info_by_host_api_device_index(0, i).get('name'))
-        print("-------------------------------------------------------------")
-        index = int(input())
-        print("recording via index "+str(index))
+        index = 1
         stream = audio.open(format=FORMAT, channels=CHANNELS,
                             rate=RATE, input=True,input_device_index = index,
                             frames_per_buffer=CHUNK)
+        print(sample_paragraphs[count+1])
         print ("recording started")
         Recordframes = []
         for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
@@ -223,9 +231,26 @@ def translateFile():
         print(f"Translated to {lang}")
 
 
-         
+def record_input():
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source)
+        audio = recognizer.listen(source, timeout=10)
+    try:
+        return recognizer.recognize_google(audio)
+    except sr.UnknownValueError:
+        print("Could not understand audio")
+        return record_input()
 
-
+def speak(text):
+    print(text)
+    engine = pyttsx3.init()
+    voices = engine.getProperty('voices')
+    engine.setProperty('voice', voices[1].id)
+    engine.setProperty('rate', 150)
+    engine.say(text)
+    engine.runAndWait()
+    
 
 
 

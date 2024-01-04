@@ -1,0 +1,1 @@
+start cmd /k "cd ../Console_App && conda activate ml && python flowchart_maker.py

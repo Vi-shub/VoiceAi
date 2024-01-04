@@ -1,9 +1,13 @@
 from utils import *
 import os
+from text_to_num import text2num
 speakers = []
 text = []
 def pre_meeting():
+    speak("Welcome to the Exec-u-Talk meeting assistant")
+    speak("Please enter the number of people in the meeting")
     n = int(input("Enter the number of people in the meeting: "))
+    print(n)
     names = []
     for i in range(n):
         name = record_audio_train()
