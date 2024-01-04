@@ -1,1 +1,7 @@
 vosk-model-en-in-0.5
+audio analysis training
+
+transformer/weights
+transformer/dataset3.pkl
+
+__pycache__
