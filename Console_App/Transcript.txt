@@ -1,6 +1,5 @@
-Anish: but making the flow chartdefence
-Anish: draw shapes four stepsidentify
-Anish: start and end pointslabel each step
-Anish: jain diamondsflowchart completednow that we're here we have
-Anish: at this meeting now how do we end this meeting by changing rain for thirty x three two one and now it will start processingthe house
-: flow chart completednow let's end a meeting by putting reader
+Anish: start making the flow chart
+Anish: Identify the problem
+Anish: Identify start and end points
+Anish: Add diamonds for conditions. flowchart completed.
+Anish: End meeting
