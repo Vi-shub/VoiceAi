@@ -13,6 +13,10 @@ import speech_recognition as sr
 from graphviz import Digraph
 from easygoogletranslate import EasyGoogleTranslate
 import pyttsx3
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import nltk 
+from nltk.corpus import stopwords 
+from nltk.tokenize import word_tokenize, sent_tokenize
 sample_paragraphs = {
     1: "The average human heart beats about 100,000 times a day.And is the most important organ in the body.",
     
@@ -145,6 +149,8 @@ def create_transcript(speakers):
     flag = 0
 
     for files in os.listdir("Meet_files"):
+         if i== len(speakers)+1:
+                break
          wf = wave.open(f"Meet_Files/chunk{i}.wav", "rb")
          recognizer = KaldiRecognizer(model, wf.getframerate())
          recognizer.SetWords(True)
@@ -161,6 +167,7 @@ def create_transcript(speakers):
                    textresults.append(resultDict.get("text", ""))
          ressultDict = json.loads(recognizer.FinalResult())
          textresults.append(ressultDict.get("text", ""))
+         print(textresults)
          with open("Transcript.txt","a") as out:
               out.write(f"{speakers[i-1][11:]}: ")
               for result in textresults:
@@ -250,6 +257,55 @@ def speak(text):
     engine.setProperty('rate', 150)
     engine.say(text)
     engine.runAndWait()
+    
+
+def sentimenAnalysis():
+    with open("Transcript.txt","r") as file:
+        text = file.read()
+    analyzer = SentimentIntensityAnalyzer()
+    sentiment = analyzer.polarity_scores(text)
+    speak("The meeting rated "+str(sentiment["pos"]*100)+"% positive, "+str(sentiment["neg"]*100)+"% negative and "+str(sentiment["neu"]*100)+"% neutral")
+    speak("The summary of the meeting is saved in summary dot t.x.t. Thank you for using Exec-u-Talk")
+
+def summarize():
+    with open("Transcript.txt","r") as file:
+        lines = file.readlines()
+    extracted_sentences = []
+    for line in lines:
+        extracted_sentences.append(line.split(":")[1])
+    text = "".join(extracted_sentences)
+    stopWords = set(stopwords.words("english"))
+    words = word_tokenize(text)
+    freqTable = dict()
+    for word in words:
+        word = word.lower()
+        if word in stopWords:
+            continue
+        if word in freqTable:
+            freqTable[word] += 1
+        else:
+            freqTable[word] = 1
+    sentences = sent_tokenize(text)
+    sentenceValue = dict()
+    for sentence in sentences:
+        for word, freq in freqTable.items():
+            if word in sentence.lower():
+                if sentence in sentenceValue:
+                    sentenceValue[sentence] += freq
+                else:
+                    sentenceValue[sentence] = freq
+    sumValues = 0
+    for sentence in sentenceValue:
+        sumValues += sentenceValue[sentence]
+    average = int(sumValues / len(sentenceValue))
+    summary = ''
+    for sentence in sentences:
+        if (sentence in sentenceValue) and (sentenceValue[sentence] > (1.2 * average)):
+            summary += " " + sentence
+    with open("summary.txt","w") as file:
+        file.write(summary)
+    
+    
     
 
 

@@ -27,9 +27,12 @@ def while_meeting(i=1):
             speaker = record_and_predict_speaker(i)
             speakers.append(speaker)
             i += 1
+    speakers.append("End")
 def post_meeting():
     create_transcript(speakers)
     translateFile()
+    sentimenAnalysis()
+    summarize()
 def main():
     if not os.path.exists("gmm_models"):
         os.makedirs("gmm_models")
@@ -37,7 +40,7 @@ def main():
         os.makedirs("Meet_Files")
     with open("input.txt","w") as f:
         f.write("0")
-    pre_meeting()
+    # pre_meeting()
     while_meeting()
     with open("Transcript.txt","w") as out:
         out.write("")
