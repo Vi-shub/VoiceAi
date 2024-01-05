@@ -3,5 +3,5 @@ audio analysis training
 
 transformer/weights
 transformer/dataset3.pkl
-
+transformer/saved weights/
 __pycache__
