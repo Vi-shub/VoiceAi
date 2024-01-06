@@ -17,3 +17,7 @@ def main():
     print(f"Summary: {result}")
 
 main()
+
+# Addressing a rally in poll-bound Telangana, Uttar Pradesh Chief Minister Yogi Adityanath said that BJP will rename 'Karimnagar' as 'Karipuram' if voted to power in the December 7 Assembly polls. BJP would work towards the sentiments of the people of the state, he added. He also said that the Congress, TRS and TDP work for the appeasement of the Muslims.
+
+#Madhesi Morcha, an alliance of seven political parties, has withdrawn support to PM Pushpa Kamal Dahal-led Nepal government after it failed to meet a seven-day ultimatum to fulfil their demands including endorsement for the revised Constitution amendment bill. The Morcha has 36 seats in the Parliament, but despite the withdrawal of support, there is no immediate threat to the government.
