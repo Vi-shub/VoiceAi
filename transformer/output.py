@@ -12,6 +12,8 @@ def main():
         result = result + sub_output + " "
     result = re.sub(r"\s+"," ", result)
     print("\n")
+    with open("summary.txt","w") as file:
+        file.write(result)
     print(f"Summary: {result}")
 
 main()
