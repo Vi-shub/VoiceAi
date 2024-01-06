@@ -28,6 +28,11 @@ def main():
                         steps.append(step_text)
 
                     generate_flowchart(steps)
+                elif "end meeting" in start_phrase.lower():
+                    print("Ending meeting...")
+                    with open("input.txt","w") as f:
+                        f.write("1")
+                    break
                 else:
                     print("Start phrase not detected. Exiting...")
             except sr.UnknownValueError:
