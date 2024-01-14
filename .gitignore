@@ -5,3 +5,5 @@ transformer/weights
 transformer/dataset3.pkl
 transformer/saved weights/
 __pycache__
+
+summarizer
