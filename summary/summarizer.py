@@ -8,9 +8,10 @@ from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize
 from sklearn.metrics.pairwise import cosine_similarity
 
-def summary(sent):
+#Download the file from the link - https://drive.google.com/file/d/1LG0E8EwAXe8fy-vPimpfhrD7wmEoHVR_/view?usp=sharing
+#keep file in wherever summarizer is used
 
-    # sent = input("Enter the paragraph to summarize: ")
+def summary(sent):
 
     sentences = []
     sentences.append(sent_tokenize(sent))
