@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execu-Talk</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard">
+        <div class="box transcript">
+            <h2>English Transcript</h2>
+            <button onclick="window.location.href='Transcript.txt'">View Transcript</button>
+        </div>
+        <div class="box flowcharts">
+            <h2>Flowcharts</h2>
+            <button onclick="window.location.href='flowchart.png'">View Flowcharts</button>
+        </div>
+        <div class="box summary">
+            <h2>Summary</h2>
+            <button onclick="window.location.href='summary.txt'">View Summary</button>
+        </div>
+        <div class="box translated-transcript">
+            <h2>Translated Transcripts</h2>
+            <ul>
+                <li><button onclick="window.location.href='Transcript_hi.txt'">Hindi</button></li>
+                <li><button onclick="window.location.href='Transcript_mr.txt'">Marathi</button></li>
+                <li><button onclick="window.location.href='Transcript_kn.txt'">Kannada</button></li>
+                <li><button onclick="window.location.href='Transcript_ta.txt'">Tamil</button></li>
+                <li><button onclick="window.location.href='Transcript_te.txt'">Telugu</button></li>
+            </ul>
+        </div>
+        <div class="box sentiment">
+            <h2>Sentiment Analysis</h2>
+            <button onclick="window.location.href='sentiment.txt'">View Sentiment Analysis</button>
+            <button onclick="window.location.href='speaker_sentiment.txt'">View Individual Sentiment Analysis</button>
+        </div>
+    </div>
+</body>
+</html>

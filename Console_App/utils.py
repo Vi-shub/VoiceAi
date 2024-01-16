@@ -14,11 +14,22 @@ from graphviz import Digraph
 from easygoogletranslate import EasyGoogleTranslate
 import pyttsx3
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-import nltk 
-from nltk.corpus import stopwords 
-from nltk.tokenize import word_tokenize, sent_tokenize
-from transformer.translate import translate as summary_translate
 import re
+import pandas as pd
+import nltk
+import re
+import networkx as nx
+from nltk.corpus import stopwords
+from nltk.tokenize import sent_tokenize
+from sklearn.metrics.pairwise import cosine_similarity
+from keras.utils import pad_sequences
+from keras.models import load_model
+import matplotlib.pyplot as plt
+
+
+
+sent_model = load_model("./ser_best_5868.h5")
+
 sample_paragraphs = {
     1: "The average human heart beats about 100,000 times a day.And is the most important organ in the body.",
     
@@ -34,7 +45,7 @@ sample_paragraphs = {
 
 def record_audio_train():
     speak("Please enter your name...")
-    name = input("Please enter your name: ")
+    name = str(input("Please enter your name: "))
     print("Your name is "+name)
     os.mkdir(f"traning_data_{name}")
     speak("Recording your voice samples...Please speak the following sentences written on the screen")
@@ -208,7 +219,7 @@ def generate_flowchart(steps):
     for i in range(1, len(steps)):
         dot.edge(f"step_{i}", f"step_{i+1}", label=f"Step {i}")
 
-    dot.render(f"{steps[0]}", format="png", cleanup=True)
+    dot.render(f"flowchart", format="png", cleanup=True)
 
     print("Flowchart saved as flowchart.png")
 
@@ -261,13 +272,59 @@ def speak(text):
     engine.runAndWait()
     
 
-def sentimenAnalysis():
-    with open("Transcript.txt","r") as file:
-        text = file.read()
-    analyzer = SentimentIntensityAnalyzer()
-    sentiment = analyzer.polarity_scores(text)
-    speak("The meeting rated "+str(sentiment["pos"]*100)+"% positive, "+str(sentiment["neg"]*100)+"% negative and "+str(sentiment["neu"]*100)+"% neutral")
-    speak("The summary of the meeting is saved in summary dot t.x.t. Thank you for using Exec-u-Talk")
+def pred_sentiment(audio,sr):
+    def get_features(audio,sr):
+        mfcc_feat = []
+        zcr = []
+        rmse = []
+        mel_freq = np.mean(librosa.feature.mfcc(y=audio, sr=sr, n_mfcc=50).T, axis=0).reshape(-1)
+        zero_cross = np.pad(librosa.feature.zero_crossing_rate(y=audio).reshape(-1), (0, 228 - len(librosa.feature.zero_crossing_rate(y=audio).reshape(-1))), 'constant')
+        rms = np.pad(librosa.feature.rms(y=audio).reshape(-1), (0, 228 - len(librosa.feature.rms(y=audio).reshape(-1))), 'constant')
+        mfcc_feat.append(mel_freq)
+        zcr.append(zero_cross)
+        rmse.append(rms)
+        all_features = np.hstack((mel_freq, zero_cross, rms)).reshape(1, -1)
+        return all_features
+    preds = []
+    chunk_duration = 3
+    chunk_samples = int(chunk_duration * sr)
+    chunks = [audio[i:i + chunk_samples] for i in range(0, len(audio), chunk_samples)]
+    for i,chunk in enumerate(chunks):
+        x=np.array(get_features(chunk,sr))
+        preds.append(sent_model.predict(x))
+    return np.mean(preds,axis = 0)
+
+
+
+
+
+def sentimenAnalysis(speakers):
+    all_sent = []
+    for files in os.listdir("Meet_files"):
+        audio,sr = librosa.load(f"Meet_Files/{files}")
+        all_sent.append(pred_sentiment(audio,sr))
+    avg = np.mean(all_sent,axis = 0)
+    text = f"Neutral: {avg[0][0]*100}%\nCalm: {avg[0][1]*100}%\nHappy: {avg[0][2]*100}%\nSad: {avg[0][3]*100}%\nAngry: {avg[0][4]*100}%\nFearful: {avg[0][5]*100}%\nDisgust: {avg[0][6]*100}%\nSurprised: {avg[0][7]*100}%"
+    with open("sentiment.txt","w") as file:
+        file.write(text)
+    speaker_sent = {}
+    for i in range(len(speakers)):
+        speaker_sent[speakers[i]] = []
+    cnt = 0
+    for files in os.listdir("Meet_files"):
+        if cnt == len(speakers):
+            break
+        audio,sr = librosa.load(f"Meet_Files/{files}")
+        speaker_sent[speakers[cnt]].append(pred_sentiment(audio,sr))
+        cnt+=1
+    for key in speaker_sent.keys():
+        speaker_sent[key] = np.mean(speaker_sent[key],axis = 0)
+    with open("speaker_sentiment.txt","w") as file:
+        for key in speaker_sent.keys():
+            file.write(f"{key[11:]}: Neutral: {speaker_sent[key][0][0]*100}% Calm: {speaker_sent[key][0][1]*100}% Happy: {speaker_sent[key][0][2]*100}% Sad: {speaker_sent[key][0][3]*100}% Angry: {speaker_sent[key][0][4]*100}% Fearful: {speaker_sent[key][0][5]*100}% Disgust: {speaker_sent[key][0][6]*100}% Surprised: {speaker_sent[key][0][7]*100}%\n")
+    speak("The sentiment analysis of the meeting is saved in sentiment dot t.x.t. Thank you for using Exec-u-Talk")
+    
+    
 
 def summarize():
     with open("Transcript.txt","r") as file:
@@ -278,17 +335,57 @@ def summarize():
     text = "".join(extracted_sentences)
     text = re.sub(r'[^A-Za-z ]', ' ', text)
     text = re.sub(r'\s+', ' ', text)
-    result = ""
-    for i in range (0,len(text),70):
-        to_process = text[i:i+70]
-        sub_output = summary_translate(to_process)
-        result = result + sub_output + " "
-    result = re.sub(r"\s+"," ", result)
-    with open("summary.txt","w") as file:
-        file.write(result)
-    speak(f"The summary of the meeting is {result}")
-    speak("The summary is saved in summary dot t.x.t. Thank you for using Exec-u-Talk")
+    sentences = []
+    sentences.append(sent_tokenize(text))
+    sentences = [y for x in sentences for y in x]
 
+    word_embeddings = {}
+    f = open('glove.6B.100d.txt', encoding='utf-8')
+    for line in f:
+        values = line.split()
+        word = values[0]
+        coefs = np.asarray(values[1:],dtype='float32')
+        word_embeddings[word] = coefs
+    f.close()
+    clean_sentences = pd.Series(sentences).str.replace("[^a-zA-Z]", " ")
+    clean_sentences = [s.lower() for s in clean_sentences]
+    stop_words = stopwords.words('english')
+    def remove_stopwords(sen):
+        sen_new = " ".join([i for i in sen if i not in stop_words])
+        return sen_new
+    clean_sentences = [remove_stopwords(r.split()) for r in clean_sentences]
+
+    word_embeddings = {}
+    f = open('glove.6B.100d.txt', encoding='utf-8')
+    for line in f:
+        values = line.split()
+        word = values[0]
+        coefs = np.asarray(values[1:],dtype='float32')
+        word_embeddings[word] = coefs
+    f.close()
+    sentence_vectors = []
+    for i in clean_sentences:
+        if len(i) != 0:
+            v = sum([word_embeddings.get(w,np.zeros((100,))) for w in i.split()])/(len(i.split())+0.001)
+        else:
+            v = np.zeros((100,))
+        sentence_vectors.append(v)
+    sim_mat = np.zeros([len(sentences),len(sentences)])
+    for i in range(len(sentences)):
+        for j in range(len(sentences)):
+            if i != j:
+                sim_mat[i][j] = cosine_similarity(sentence_vectors[i].reshape(1,100),sentence_vectors[j].reshape(1,100))[0,0]
+    nx_graph = nx.from_numpy_array(sim_mat)
+    scores = nx.pagerank(nx_graph)
+    ranked_sentences = sorted(((scores[i],s) for i,s in enumerate(sentences)),reverse=True)
+    with open("summary.txt","w") as file:
+            file.write('')
+    for i in range(5):
+        if i == len(ranked_sentences):
+            break
+        with open("summary.txt","a") as file:
+            file.write(ranked_sentences[i][1]+"\n")
+    speak("The summary of the meeting is saved in summary dot t.x.t. Thank you for using Exec-u-Talk")
 
 
 
