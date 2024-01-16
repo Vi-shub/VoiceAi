@@ -17,6 +17,8 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import nltk 
 from nltk.corpus import stopwords 
 from nltk.tokenize import word_tokenize, sent_tokenize
+from transformer.translate import translate as summary_translate
+import re
 sample_paragraphs = {
     1: "The average human heart beats about 100,000 times a day.And is the most important organ in the body.",
     
@@ -274,36 +276,22 @@ def summarize():
     for line in lines:
         extracted_sentences.append(line.split(":")[1])
     text = "".join(extracted_sentences)
-    stopWords = set(stopwords.words("english"))
-    words = word_tokenize(text)
-    freqTable = dict()
-    for word in words:
-        word = word.lower()
-        if word in stopWords:
-            continue
-        if word in freqTable:
-            freqTable[word] += 1
-        else:
-            freqTable[word] = 1
-    sentences = sent_tokenize(text)
-    sentenceValue = dict()
-    for sentence in sentences:
-        for word, freq in freqTable.items():
-            if word in sentence.lower():
-                if sentence in sentenceValue:
-                    sentenceValue[sentence] += freq
-                else:
-                    sentenceValue[sentence] = freq
-    sumValues = 0
-    for sentence in sentenceValue:
-        sumValues += sentenceValue[sentence]
-    average = int(sumValues / len(sentenceValue))
-    summary = ''
-    for sentence in sentences:
-        if (sentence in sentenceValue) and (sentenceValue[sentence] > (1.2 * average)):
-            summary += " " + sentence
+    text = re.sub(r'[^A-Za-z ]', ' ', text)
+    text = re.sub(r'\s+', ' ', text)
+    result = ""
+    for i in range (0,len(text),70):
+        to_process = text[i:i+70]
+        sub_output = summary_translate(to_process)
+        result = result + sub_output + " "
+    result = re.sub(r"\s+"," ", result)
     with open("summary.txt","w") as file:
-        file.write(summary)
+        file.write(result)
+    speak(f"The summary of the meeting is {result}")
+    speak("The summary is saved in summary dot t.x.t. Thank you for using Exec-u-Talk")
+
+
+
+
     
     
     
