@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execu-Talk</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="bg-white border-gray-200 dark:bg-gray-900">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <a href="https://flowbite.com/" class="flex items-center space-x-3 rtl:space-x-reverse">
+                <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo" />
+                <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">EXECU-TALK</span>
+            </a>
+            <button data-collapse-toggle="navbar-default" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">
+                <span class="sr-only">Open main menu</span>
+                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+                </svg>
+            </button>
+            <div class="hidden w-full md:block md:w-auto" id="navbar-default">
+                <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+                    <!-- Your navigation links here -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard">
+        <div class="box transcript">
+            <h2>English Transcript</h2>
+            <button onclick="openPopup('Transcript.txt')">View Transcript</button>
+        </div>
+        <div class="box flowcharts">
+            <h2>Flowcharts</h2>
+            <button onclick="openPopup('flowchart.png')">View Flowcharts</button>
+        </div>
+        <div class="box summary">
+            <h2>Summary</h2>
+            <button onclick="openPopup('summary.txt')">View Summary</button>
+        </div>
+        <div class="box translated-transcript">
+            <h2>Translated Transcripts</h2>
+            <ul>
+                <li><button onclick="openPopup('Transcript_hi.txt')">Hindi</button></li>
+                <li><button onclick="openPopup('Transcript_mr.txt')">Marathi</button></li>
+                <li><button onclick="openPopup('Transcript_kn.txt')">Kannada</button></li>
+                <li><button onclick="openPopup('Transcript_ta.txt')">Tamil</button></li>
+                <li><button onclick="openPopup('Transcript_te.txt')">Telugu</button></li>
+            </ul>
+        </div>
+        <div class="box sentiment">
+            <h2>Sentiment Analysis</h2>
+            <button onclick="openPopup('sentiment.txt')">View Sentiment Analysis</button>
+            <button onclick="openPopup('speaker_sentiment.txt')">View Individual Sentiment Analysis</button>
+        </div>
+    </div>
+
+    <div id="popup" class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
+        <div class="bg-white p-8 rounded-lg">
+            <button onclick="closePopup()" class="absolute top-4 right-4 text-gray-700 hover:text-red-500 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <iframe id="popup-iframe" src="" width="100%" height="400px"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function openPopup(filePath) {
+            const popupIframe = document.getElementById('popup-iframe');
+            popupIframe.src = filePath;
+            document.getElementById('popup').style.display = 'flex';
+        }
+
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

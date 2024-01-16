@@ -45,7 +45,7 @@ def main():
         out.write("")
     post_meeting()
     # open html file
-    webbrowser.open("dash.html")
+    webbrowser.open("dash1.html")
 
 
 if __name__ == "__main__":
