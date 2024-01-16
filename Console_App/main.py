@@ -10,6 +10,7 @@ def pre_meeting():
     names = []
     for i in range(n):
         name = record_audio_train()
+        # name = input("Enter the name of the person: ")
         names.append(name)
     for name in names:
         train_model(name)
